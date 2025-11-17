@@ -59,6 +59,10 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':1'])->
         'update' => 'admin.users.update',
         'destroy' => 'admin.users.destroy',
     ]);
+
+    // Dans la section ADMIN, ajoute :
+    Route::delete('/admin/demandes/{id}', [DemandeController::class, 'destroy'])
+        ->name('admin.demandes.destroy');
 });
 
 
@@ -71,6 +75,9 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':2'])->
 
     Route::get('/encadrant/demandes', [DemandeController::class, 'index'])
         ->name('encadrant.demandes.index');
+
+    Route::put('/encadrant/demandes/{id}', [DemandeController::class, 'update'])
+        ->name('encadrant.demandes.update');
 
     Route::get('/encadrant/rapports', [RapportController::class, 'index'])
         ->name('encadrant.rapports.index');
@@ -97,11 +104,11 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':3'])->
     Route::get('/etudiant/demandes/{demande}/edit', [DemandeController::class, 'edit'])
         ->name('etudiant.demandes.edit');
 
-    Route::put('/etudiant/demandes/{demande}', [DemandeController::class, 'update'])
-        ->name('etudiant.demandes.update');
+    //Route::put('/etudiant/demandes/{demande}', [DemandeController::class, 'update'])
+    //    ->name('etudiant.demandes.update');
 
-    Route::delete('/etudiant/demandes/{demande}', [DemandeController::class, 'destroy'])
-        ->name('etudiant.demandes.destroy');
+    //Route::delete('/etudiant/demandes/{demande}', [DemandeController::class, 'destroy'])
+    //    ->name('etudiant.demandes.destroy');
 
     Route::get('/etudiant/rapports', [RapportController::class, 'index'])
         ->name('etudiant.rapports.index');
