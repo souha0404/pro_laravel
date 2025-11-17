@@ -62,4 +62,20 @@ class RapportController extends Controller
 
         return Storage::disk('public')->download($rapport->fichier);
     }
+
+    public function adminIndex()
+    {
+        $user = auth()->user();
+        
+        // Vérifier que l'utilisateur est un admin
+        if ($user->role_id !== 1) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        $rapports = Rapport::with(['demande.etudiant', 'demande.encadrant'])
+            ->latest()
+            ->get();
+
+        return view('admin.rapports.index', compact('rapports'));
+    }
 }

@@ -206,4 +206,20 @@ class DemandeController extends Controller
 
         return !$demandeActive; // Peut créer seulement s'il n'y a pas de demande active
     }
+
+    public function adminIndex()
+    {
+        $user = auth()->user();
+        
+        // Vérifier que l'utilisateur est un admin
+        if ($user->role_id !== 1) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        $demandes = Demande::with(['etudiant', 'encadrant'])
+            ->latest()
+            ->get();
+
+        return view('admin.demandes.index', compact('demandes'));
+    }
 }

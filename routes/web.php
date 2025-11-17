@@ -63,6 +63,12 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':1'])->
     // Dans la section ADMIN, ajoute :
     Route::delete('/admin/demandes/{id}', [DemandeController::class, 'destroy'])
         ->name('admin.demandes.destroy');
+
+    Route::get('/admin/demandes', [DemandeController::class, 'adminIndex'])
+        ->name('admin.demandes.index');
+
+    Route::get('/admin/rapports', [RapportController::class, 'adminIndex'])
+        ->name('admin.rapports.index');
 });
 
 

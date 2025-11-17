@@ -36,10 +36,10 @@
                     <a class="nav-link" href="{{ route('admin.users.index') }}">Utilisateurs</a>
                 </li>
                 <li class="nav-item">
-                    {{--<a class="nav-link" href="{{ route('admin.demandes.index') }}">Demandes</a>--}}
+                    <a class="nav-link" href="{{ route('admin.demandes.index') }}">Demandes</a>
                 </li>
                 <li class="nav-item">
-                    {{--<a class="nav-link" href="{{ route('admin.rapports.index') }}">Rapports</a>--}}
+                    <a class="nav-link" href="{{ route('admin.rapports.index') }}">Rapports</a>
                 </li>
             @elseif(auth()->user()->isEncadrant())
                 {{-- Menu pour Encadrant --}}

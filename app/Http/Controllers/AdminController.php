@@ -26,13 +26,31 @@ class AdminController extends Controller
             'Étudiant' => User::whereHas('role', fn($q) => $q->where('nom', 'Étudiant'))->count(),
         ];
 
+        // Données pour le graphique des demandes par statut
+        $demandesByStatut = [
+            'En attente' => Demande::where('statut', 'en_attente')->count(),
+            'Acceptées' => Demande::where('statut', 'acceptée')->count(),
+            'Refusées' => Demande::where('statut', 'refusée')->count(),
+        ];
+
+        // Données pour le graphique des rapports par mois (6 derniers mois)
+        $rapportsByMonth = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $rapportsByMonth[$month->format('M Y')] = Rapport::whereYear('created_at', $month->year)
+                ->whereMonth('created_at', $month->month)
+                ->count();
+        }
+
         return view('admin.dashboard', compact(
             'etudiants', 
             'encadrants', 
             'admins',
             'demandes', 
             'rapports',
-            'usersByRole'
+            'usersByRole',
+            'demandesByStatut',
+            'rapportsByMonth'
         ));
     }
 }
