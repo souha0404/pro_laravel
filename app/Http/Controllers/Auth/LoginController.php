@@ -19,9 +19,9 @@ class LoginController extends Controller
             case 'Admin':
                 return redirect('/admin/dashboard');
             case 'Encadrant':
-                return redirect('/encadrant/demandes'); // Interface encadrant
+                return redirect('/encadrant/dashboard'); // Interface encadrant
             case 'Étudiant':
-                return redirect('/etudiant/demandes'); // Interface étudiant
+                return redirect('/etudiant/dashboard'); // Interface étudiant
             default:
                 return redirect('/login')->with('error', 'Rôle non défini.');
         }

@@ -5,18 +5,19 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-   public function up()
-{
-    Schema::table('rapports', function (Blueprint $table) {
-        $table->unsignedBigInteger('etudiant_id')->after('id'); // obligatoire
-        $table->unsignedBigInteger('encadrant_id')->nullable()->after('etudiant_id'); // facultatif
-    });
-}
+    public function up()
+    {
+        Schema::create('rapports', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('demande_id')->constrained('demandes')->onDelete('cascade'); // Obligatoire
+            $table->string('titre');
+            $table->string('fichier');
+            $table->timestamps();
+        });
+    }
 
     public function down()
-{
-    Schema::table('rapports', function (Blueprint $table) {
-        $table->dropColumn(['etudiant_id', 'encadrant_id']);
-    });
-}
+    {
+        Schema::dropIfExists('rapports');
+    }
 };

@@ -32,4 +32,17 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->role_id === 1;
+    }
+    public function isEncadrant(): bool
+    {
+        return $this->role_id === 2;
+    }
+    public function isEtudiant(): bool
+    {
+        return $this->role_id === 3;
+    }
 }
