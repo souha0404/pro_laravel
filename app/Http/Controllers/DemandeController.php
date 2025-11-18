@@ -14,7 +14,7 @@ class DemandeController extends Controller
     {
         $user = auth()->user();
         
-        if ($user->role_id == 2) { // Encadrant
+        if ($user->isEncadrant()) { // Encadrant
             // Statistiques pour les graphiques
             $demandesByStatut = [
                 'En attente' => Demande::where('encadrant_id', $user->id)->where('statut', 'en_attente')->count(),
@@ -27,17 +27,31 @@ class DemandeController extends Controller
             // Compter les rapports via les demandes acceptées de l'encadrant
             $totalRapports = Rapport::whereHas('demande', function($query) use ($user) {
                 $query->where('encadrant_id', $user->id)
-                      ->where('statut', 'acceptée');
+                        ->where('statut', 'acceptée');
             })->count();
+            
+            $rapportsByStatut = [
+                'Déposé' => Rapport::whereHas('demande', fn($q) => $q->where('encadrant_id', $user->id)->where('statut', 'acceptée'))
+                    ->where('statut', 'déposé')->count(),
+                'En révision' => Rapport::whereHas('demande', fn($q) => $q->where('encadrant_id', $user->id)->where('statut', 'acceptée'))
+                    ->where('statut', 'en_revision')->count(),
+                'Validé' => Rapport::whereHas('demande', fn($q) => $q->where('encadrant_id', $user->id)->where('statut', 'acceptée'))
+                    ->where('statut', 'validé')->count(),
+                'Rejeté' => Rapport::whereHas('demande', fn($q) => $q->where('encadrant_id', $user->id)->where('statut', 'acceptée'))
+                    ->where('statut', 'rejeté')->count(),
+                'Correction requise' => Rapport::whereHas('demande', fn($q) => $q->where('encadrant_id', $user->id)->where('statut', 'acceptée'))
+                    ->where('statut', 'correction_requise')->count(),
+            ];
             
             return view('encadrant.dashboard', compact(
                 'demandesByStatut', 
                 'totalDemandes', 
-                'totalRapports'
+                'totalRapports',
+                'rapportsByStatut'
             ));
         }
         
-        if ($user->role_id == 3) { // Étudiant
+        if ($user->isEtudiant()) { // Étudiant
             // Statistiques pour les graphiques
             $demandesByStatut = [
                 'En attente' => Demande::where('etudiant_id', $user->id)->where('statut', 'en_attente')->count(),
@@ -50,17 +64,32 @@ class DemandeController extends Controller
             // Compter les rapports de l'étudiant (via les demandes acceptées)
             $totalRapports = Rapport::whereHas('demande', function($query) use ($user) {
                 $query->where('etudiant_id', $user->id)
-                      ->where('statut', 'acceptée');
+                        ->where('statut', 'acceptée');
             })->count();
+            
+            $rapportsByStatut = [
+                'Déposé' => Rapport::whereHas('demande', fn($q) => $q->where('etudiant_id', $user->id)->where('statut', 'acceptée'))
+                    ->where('statut', 'déposé')->count(),
+                'En révision' => Rapport::whereHas('demande', fn($q) => $q->where('etudiant_id', $user->id)->where('statut', 'acceptée'))
+                    ->where('statut', 'en_revision')->count(),
+                'Validé' => Rapport::whereHas('demande', fn($q) => $q->where('etudiant_id', $user->id)->where('statut', 'acceptée'))
+                    ->where('statut', 'validé')->count(),
+                'Rejeté' => Rapport::whereHas('demande', fn($q) => $q->where('etudiant_id', $user->id)->where('statut', 'acceptée'))
+                    ->where('statut', 'rejeté')->count(),
+                'Correction requise' => Rapport::whereHas('demande', fn($q) => $q->where('etudiant_id', $user->id)->where('statut', 'acceptée'))
+                    ->where('statut', 'correction_requise')->count(),
+            ];
             
             return view('etudiant.dashboard', compact(
                 'demandesByStatut', 
                 'totalDemandes', 
-                'totalRapports'
+                'totalRapports',
+                'rapportsByStatut'
             ));
         }
         
-        abort(403, 'Accès non autorisé');
+        // Si le rôle n'est pas reconnu, rediriger vers home
+        return redirect()->route('/')->with('error', 'Accès non autorisé');
     }
 
     // Liste des demandes (encadrant ou étudiant)
@@ -68,7 +97,7 @@ class DemandeController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role_id == 2) { // Encadrant
+        if ($user->isEncadrant()) { // Encadrant
             $demandes = Demande::where('encadrant_id', $user->id)
                 ->with(['etudiant', 'encadrant'])
                 ->latest()
@@ -76,7 +105,7 @@ class DemandeController extends Controller
             return view('encadrant.demandes.index', compact('demandes'));
         }
 
-        if ($user->role_id == 3) { // Étudiant
+        if ($user->isEtudiant()) { // Étudiant
             $demandes = Demande::where('etudiant_id', $user->id)
                 ->with(['etudiant', 'encadrant'])
                 ->latest()
@@ -97,7 +126,7 @@ class DemandeController extends Controller
         $user = auth()->user();
         
         // Vérifier que l'utilisateur est un étudiant
-        if ($user->role_id !== 3) {
+        if (!$user->isEtudiant()) {
             abort(403, 'Seuls les étudiants peuvent créer des demandes');
         }
 
@@ -121,7 +150,7 @@ class DemandeController extends Controller
         $user = auth()->user();
         
         // Vérifier que l'utilisateur est un étudiant
-        if ($user->role_id !== 3) {
+        if (!$user->isEtudiant()) {
             abort(403, 'Seuls les étudiants peuvent créer des demandes');
         }
 
@@ -138,7 +167,7 @@ class DemandeController extends Controller
 
         // Vérifier que l'encadrant sélectionné est bien un encadrant
         $encadrant = User::findOrFail($request->encadrant_id);
-        if ($encadrant->role_id !== 2) {
+        if (!$encadrant->isEncadrant()) {
             return back()->withErrors(['encadrant_id' => 'L\'utilisateur sélectionné n\'est pas un encadrant'])->withInput();
         }
 
@@ -159,7 +188,7 @@ class DemandeController extends Controller
         $demande = Demande::findOrFail($id);
 
         // Vérifier que l'utilisateur est un encadrant
-        if ($user->role_id !== 2) {
+        if (!$user->isEncadrant()) {
             abort(403, 'Seuls les encadrants peuvent modifier les demandes');
         }
 
@@ -186,7 +215,7 @@ class DemandeController extends Controller
         $user = auth()->user();
         
         // Vérifier que l'utilisateur est un admin
-        if ($user->role_id !== 1) {
+        if (!$user->isAdmin()) {
             abort(403, 'Seuls les administrateurs peuvent supprimer des demandes');
         }
 
@@ -212,7 +241,7 @@ class DemandeController extends Controller
         $user = auth()->user();
         
         // Vérifier que l'utilisateur est un admin
-        if ($user->role_id !== 1) {
+        if (!$user->isAdmin()) {
             abort(403, 'Accès non autorisé');
         }
 

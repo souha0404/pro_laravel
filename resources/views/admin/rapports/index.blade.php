@@ -12,26 +12,28 @@
     @endif
 
     <div class="mb-3">
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">← Retour au dashboard</a>
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour au dashboard
+        </a>
     </div>
 
     <div class="card">
         <div class="card-body">
-            <table class="table table-striped table-hover">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Étudiant</th>
                         <th>Encadrant</th>
                         <th>Titre</th>
-                        <th>Fichier</th>
+                        <th>Statut</th>
                         <th>Date de création</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($rapports as $rapport)
                     <tr>
-                        <td>{{ $rapport->id }}</td>
                         <td>
                             {{ $rapport->demande->etudiant->prenom ?? 'N/A' }} {{ $rapport->demande->etudiant->nom ?? '' }}
                             <br>
@@ -44,23 +46,51 @@
                         </td>
                         <td>{{ $rapport->titre }}</td>
                         <td>
-                            @if($rapport->fichier)
-                                <a href="{{ Storage::url($rapport->fichier) }}" target="_blank" class="btn btn-primary btn-sm">
-                                    Télécharger
-                                </a>
-                            @else
-                                <span class="text-muted">N/A</span>
-                            @endif
+                            @php
+                                $badgeClass = match($rapport->statut ?? 'déposé') {
+                                    'déposé' => 'warning',
+                                    'en_revision' => 'info',
+                                    'validé' => 'success',
+                                    'rejeté' => 'danger',
+                                    'correction_requise' => 'warning',
+                                    default => 'secondary'
+                                };
+                            @endphp
+                            <span class="badge bg-{{ $badgeClass }}">
+                                {{ ucfirst(str_replace('_', ' ', $rapport->statut ?? 'déposé')) }}
+                            </span>
                         </td>
                         <td>{{ $rapport->created_at->format('d/m/Y H:i') }}</td>
+                        <td>
+                            <div role="group">
+                                @if($rapport->fichier)
+                                <form action="{{ route('admin.rapports.download', $rapport->id) }}" 
+                                    method="GET" style="display:inline-block">
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-download"></i> Télécharger
+                                    </button>
+                                </form>
+                                @endif
+                                
+                                <form action="{{ route('admin.rapports.destroy', $rapport->id) }}" method="POST" style="display:inline-block">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm" 
+                                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce rapport ? Cette action est irréversible.');">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center">Aucun rapport pour le moment.</td>
+                        <td colspan="7" class="text-center">Aucun rapport pour le moment.</td>
                     </tr>
                     @endforelse
                 </tbody>
-            </table>
+                </table>
+            </div>
         </div>
     </div>
 </div>

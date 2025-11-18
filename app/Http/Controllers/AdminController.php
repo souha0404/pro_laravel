@@ -33,14 +33,14 @@ class AdminController extends Controller
             'Refusées' => Demande::where('statut', 'refusée')->count(),
         ];
 
-        // Données pour le graphique des rapports par mois (6 derniers mois)
-        $rapportsByMonth = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $month = now()->subMonths($i);
-            $rapportsByMonth[$month->format('M Y')] = Rapport::whereYear('created_at', $month->year)
-                ->whereMonth('created_at', $month->month)
-                ->count();
-        }
+        // Données pour le graphique des rapports par statut
+        $rapportsByStatut = [
+            'Déposé' => Rapport::where('statut', 'déposé')->count(),
+            'En révision' => Rapport::where('statut', 'en_revision')->count(),
+            'Validé' => Rapport::where('statut', 'validé')->count(),
+            'Rejeté' => Rapport::where('statut', 'rejeté')->count(),
+            'Correction requise' => Rapport::where('statut', 'correction_requise')->count(),
+        ];
 
         return view('admin.dashboard', compact(
             'etudiants', 
@@ -50,7 +50,7 @@ class AdminController extends Controller
             'rapports',
             'usersByRole',
             'demandesByStatut',
-            'rapportsByMonth'
+            'rapportsByStatut'
         ));
     }
 }

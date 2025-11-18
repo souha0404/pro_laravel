@@ -13,6 +13,8 @@ class Rapport extends Model
         'demande_id',
         'titre',
         'fichier',
+        'statut',
+        'commentaire_encadrant',
     ];
 
     // Relation vers Demande

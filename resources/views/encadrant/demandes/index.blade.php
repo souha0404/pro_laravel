@@ -12,15 +12,17 @@
     @endif
 
     <div class="mb-3">
-        <a href="{{ route('encadrant.dashboard') }}" class="btn btn-secondary">← Retour au dashboard</a>
+        <a href="{{ route('encadrant.dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour au dashboard
+        </a>
     </div>
 
     <div class="card">
         <div class="card-body">
-            <table class="table table-striped table-hover">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Étudiant</th>
                         <th>Objet</th>
                         <th>Statut</th>
@@ -31,7 +33,6 @@
                 <tbody>
                     @forelse($demandes as $demande)
                     <tr>
-                        <td>{{ $demande->id }}</td>
                         <td>
                             {{ $demande->etudiant->prenom ?? 'Inconnu' }} {{ $demande->etudiant->nom ?? '' }}
                             <br>
@@ -76,7 +77,8 @@
                     </tr>
                     @endforelse
                 </tbody>
-            </table>
+                </table>
+            </div>
         </div>
     </div>
 </div>

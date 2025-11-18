@@ -19,7 +19,9 @@
     @endif
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ route('etudiant.dashboard') }}" class="btn btn-secondary">← Retour au dashboard</a>
+        <a href="{{ route('etudiant.dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour au dashboard
+        </a>
         @if($peutCreerDemande ?? true)
             <a href="{{ route('etudiant.demandes.create') }}" class="btn btn-success">
                 Créer une demande
@@ -33,10 +35,10 @@
 
     <div class="card">
         <div class="card-body">
-            <table class="table table-striped table-hover">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Encadrant</th>
                         <th>Objet</th>
                         <th>Statut</th>
@@ -46,7 +48,6 @@
                 <tbody>
                     @forelse($demandes as $demande)
                     <tr>
-                        <td>{{ $demande->id }}</td>
                         <td>
                             {{ $demande->encadrant->prenom ?? 'N/A' }} {{ $demande->encadrant->nom ?? '' }}
                             <br>
@@ -66,7 +67,8 @@
                     </tr>
                     @endforelse
                 </tbody>
-            </table>
+                </table>
+            </div>
         </div>
     </div>
 </div>

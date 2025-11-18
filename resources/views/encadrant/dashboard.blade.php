@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
     <h1>Tableau de bord Encadrant</h1>
     <p class="lead">Bienvenue, {{ auth()->user()->prenom }} {{ auth()->user()->nom }} !</p>
 
@@ -13,7 +13,7 @@
                     <h5 class="card-title">Demandes</h5>
                     <h2>{{ $totalDemandes ?? 0 }}</h2>
                     <a href="{{ route('encadrant.demandes.index') }}" class="text-white text-decoration-none">
-                        Voir toutes les demandes →
+                        <i class="fas fa-eye"></i> Voir toutes les demandes
                     </a>
                 </div>
             </div>
@@ -24,7 +24,7 @@
                     <h5 class="card-title">Rapports</h5>
                     <h2>{{ $totalRapports ?? 0 }}</h2>
                     <a href="{{ route('encadrant.rapports.index') }}" class="text-white text-decoration-none">
-                        Voir tous les rapports →
+                        <i class="fas fa-eye"></i> Voir tous les rapports
                     </a>
                 </div>
             </div>
@@ -46,7 +46,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Statistiques des rapports</h5>
+                    <h5 class="mb-0">Répartition des rapports par statut</h5>
                 </div>
                 <div class="card-body">
                     <canvas id="rapportsChart" width="400" height="400"></canvas>
@@ -107,21 +107,30 @@
         }
     });
 
-    // Graphique simple pour les rapports (total)
-    const totalRapports = {{ $totalRapports ?? 0 }};
+     // Données pour le graphique des rapports
+    const rapportsData = @json($rapportsByStatut ?? []);
+
     const ctxRapports = document.getElementById('rapportsChart').getContext('2d');
     const rapportsChart = new Chart(ctxRapports, {
         type: 'doughnut',
         data: {
-            labels: ['Rapports reçus'],
+            labels: Object.keys(rapportsData),
             datasets: [{
                 label: 'Nombre de rapports',
-                data: [totalRapports],
+                data: Object.values(rapportsData),
                 backgroundColor: [
-                    'rgba(54, 162, 235, 0.8)',  // Bleu
+                    'rgba(255, 206, 86, 0.8)',  // Jaune pour Déposé
+                    'rgba(54, 162, 235, 0.8)',  // Bleu pour En révision
+                    'rgba(75, 192, 192, 0.8)',  // Vert pour Validé
+                    'rgba(255, 99, 132, 0.8)',  // Rouge pour Rejeté
+                    'rgba(255, 159, 64, 0.8)',  // Orange pour Correction requise
                 ],
                 borderColor: [
+                    'rgba(255, 206, 86, 1)',
                     'rgba(54, 162, 235, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 159, 64, 1)',
                 ],
                 borderWidth: 2
             }]
@@ -136,7 +145,12 @@
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return 'Total: ' + context.parsed + ' rapport(s)';
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += context.parsed + ' rapport(s)';
+                            return label;
                         }
                     }
                 }

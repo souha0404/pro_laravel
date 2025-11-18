@@ -13,7 +13,7 @@ class RegisterController extends Controller
 {
     use RegistersUsers;
 
-    protected $redirectTo = '/home'; // après login
+    protected $redirectTo = '/'; // après login
 
     protected function validator(array $data)
     {

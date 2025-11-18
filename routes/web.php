@@ -14,33 +14,20 @@ use Illuminate\Support\Facades\Auth;
 */
 require __DIR__.'/auth.php';
 
-// Page d'accueil
-Route::get('/encadrant/test', function () {
-    return view('encadrant.dashboard'); // ou 'encadrant.demandes' si c’est ton view
-});
-
 Route::get('/', function () {
+    if (auth()->check()) {
+        $user = auth()->user();
+        return match($user->role_id) {
+            1 => redirect()->route('admin.dashboard'),
+            2 => redirect()->route('encadrant.dashboard'),
+            3 => redirect()->route('etudiant.dashboard'),
+            default => redirect()->route('login'),
+        };
+    }
+    
+    // Afficher la page welcome pour les visiteurs non connectés
     return view('welcome');
-});
-
-// Redirection après login selon rôle
-Route::get('/home', function () {
-    $user = auth()->user();
-    if (!$user) {
-        return redirect('/login');
-    }
-
-    switch ($user->role_id) {
-        case 1: // Admin
-            return redirect('/admin/dashboard');
-        case 2: // Encadrant
-            return redirect('/encadrant/dashboard');
-        case 3: // Étudiant
-            return redirect('/etudiant/dashboard');
-        default:
-            return redirect('/home');
-    }
-})->name('home');
+})->name('welcome');
 
 
 // ========================
@@ -69,6 +56,12 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':1'])->
 
     Route::get('/admin/rapports', [RapportController::class, 'adminIndex'])
         ->name('admin.rapports.index');
+
+    Route::delete('/admin/rapports/{id}', [RapportController::class, 'destroy'])
+        ->name('admin.rapports.destroy');
+
+    Route::get('/admin/rapports/{rapport}/download', [RapportController::class, 'download'])
+        ->name('admin.rapports.download');
 });
 
 
@@ -87,6 +80,15 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':2'])->
 
     Route::get('/encadrant/rapports', [RapportController::class, 'index'])
         ->name('encadrant.rapports.index');
+
+    Route::get('/encadrant/rapports/{rapport}/download', [RapportController::class, 'download'])
+        ->name('encadrant.rapports.download');
+
+    Route::put('/encadrant/rapports/{id}', [RapportController::class, 'update'])
+        ->name('encadrant.rapports.update');
+
+    Route::get('/encadrant/rapports/{id}/comment', [RapportController::class, 'showCommentForm'])
+        ->name('encadrant.rapports.comment');
 });
 
 
@@ -109,12 +111,6 @@ Route::middleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':3'])->
 
     Route::get('/etudiant/demandes/{demande}/edit', [DemandeController::class, 'edit'])
         ->name('etudiant.demandes.edit');
-
-    //Route::put('/etudiant/demandes/{demande}', [DemandeController::class, 'update'])
-    //    ->name('etudiant.demandes.update');
-
-    //Route::delete('/etudiant/demandes/{demande}', [DemandeController::class, 'destroy'])
-    //    ->name('etudiant.demandes.destroy');
 
     Route::get('/etudiant/rapports', [RapportController::class, 'index'])
         ->name('etudiant.rapports.index');

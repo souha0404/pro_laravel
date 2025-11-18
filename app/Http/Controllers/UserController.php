@@ -51,7 +51,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         
         // Empêcher la modification des admins
-        if ($user->role_id === 1) {
+        if ($user->isAdmin()) {
             abort(403, 'Vous ne pouvez pas modifier un administrateur');
         }
         
@@ -65,7 +65,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         
         // Empêcher la modification des admins
-        if ($user->role_id === 1) {
+        if ($user->isAdmin()) {
             abort(403, 'Vous ne pouvez pas modifier un administrateur');
         }
 
@@ -100,7 +100,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         
         // Empêcher la suppression des admins
-        if ($user->role_id === 1) {
+        if ($user->isAdmin()) {
             abort(403, 'Vous ne pouvez pas supprimer un administrateur');
         }
         

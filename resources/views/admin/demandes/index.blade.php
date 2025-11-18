@@ -12,15 +12,17 @@
     @endif
 
     <div class="mb-3">
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">← Retour au dashboard</a>
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour au dashboard
+        </a>
     </div>
 
     <div class="card">
         <div class="card-body">
-            <table class="table table-striped table-hover">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Étudiant</th>
                         <th>Encadrant</th>
                         <th>Objet</th>
@@ -32,7 +34,6 @@
                 <tbody>
                     @forelse($demandes as $demande)
                     <tr>
-                        <td>{{ $demande->id }}</td>
                         <td>
                             {{ $demande->etudiant->prenom ?? 'N/A' }} {{ $demande->etudiant->nom ?? '' }}
                             <br>
@@ -55,7 +56,9 @@
                                   onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette demande ?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
                             </form>
                         </td>
                     </tr>
@@ -65,7 +68,8 @@
                     </tr>
                     @endforelse
                 </tbody>
-            </table>
+                </table>
+            </div>
         </div>
     </div>
 </div>
